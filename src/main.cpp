@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "rgb.h"
 #include "bluetooth.h"
+#include "mpu.h"
 
 static const char *TAG = "SETUP";
 
@@ -12,6 +13,7 @@ void setup() {
   rgb.setColor(RGBLed::YELLOW);
 
   setup_bluetooth();
+  setup_mpu();
 }
 
 void loop() {
