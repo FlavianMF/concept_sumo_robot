@@ -26,13 +26,20 @@ void bluetooth_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 void setup_bluetooth(void) {
   ESP_LOGV(TAG, "Setup Bluetooth");
 
-  bluetooth.begin("GerOLDin");
-  ESP_LOGV(TAG, "Bluetooth are initted with name: GerOLDin");
+  if (bluetooth.begin("GerOLDin")) {
+    ESP_LOGI(TAG, "Bluetooth are initted with name: GerOLDin");
+  } else {
+    ESP_LOGE(TAG, "Bluetooth are not initted");
+    return;
+  }
 
-  bluetooth.setPin("0101");
-  ESP_LOGV(TAG, "Pin are set with value 0101");
+  if (bluetooth.setPin("0101")) {
+    ESP_LOGI(TAG, "Pin are set with value 0101");
+  } else {
+    ESP_LOGE(TAG, "Bluetooth pin are not set");
+  }
 
-  bluetooth.register_callback(bluetooth_callback);
+  ESP_ERROR_CHECK(bluetooth.register_callback(bluetooth_callback));
   ESP_LOGV(TAG, "Callback are registered");
 
   ESP_LOGV(TAG, "Bluetooth are initted");
