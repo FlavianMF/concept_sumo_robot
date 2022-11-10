@@ -1,0 +1,3 @@
+[submodule "lib/RGBLed"]
+	path = lib/RGBLed
+	url = https://github.com/wilmouths/RGBLed.git
