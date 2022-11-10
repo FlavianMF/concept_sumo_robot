@@ -7,9 +7,7 @@
 
 MPU6050 mpu;
 
-#include "mpu.h"
-
-const char *MPU_TAG = "mpu";
+static const char *MPU_TAG = "mpu";
 
 bool dmpReady = false;  // set true if DMP init was successful
 uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
@@ -74,11 +72,6 @@ void setup_mpu() {
 
     // enable Arduino interrupt detection
     ESP_LOGI(MPU_TAG, "enabling interrupt detection (external %d interrupt)", digitalPinToInterrupt(MPU_INTERRUPT_PIN));
-    // Serial.print(
-    //     F("[setup_mpu] Enabling interrupt detection (Arduino external "
-    //       "interrupt "));
-    // Serial.print(digitalPinToInterrupt(MPU_INTERRUPT_PIN));
-    // Serial.println(F(")..."));
     mpuInterrupt = false;
     attachInterrupt(digitalPinToInterrupt(MPU_INTERRUPT_PIN), dmpDataReady,
                     RISING);
@@ -87,7 +80,6 @@ void setup_mpu() {
     // set our DMP Ready flag so the main loop() function knows it's okay to use
     // it
     ESP_LOGI(MPU_TAG, "dmp ready, waiting for first interrupt...");
-    // Serial.println(F("[setup_mpu] DMP ready! Waiting for first interrupt..."));
     dmpReady = true;
 
     // get expected DMP packet size for later comparison
@@ -98,9 +90,6 @@ void setup_mpu() {
     // 2 = DMP configuration updates failed
     // (if it's going to break, usually the code will be 1)
     ESP_LOGE(MPU_TAG, "dmp initialization failed (code %d)", devStatus);
-    // Serial.print(F("[setup_mpu][E] DMP Initialization failed (code "));
-    // Serial.print(devStatus);
-    // Serial.println(F(")"));
   }
 
   Serial.println(F("[setup_mpu] end setup"));
