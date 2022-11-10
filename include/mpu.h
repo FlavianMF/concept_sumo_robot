@@ -1,5 +1,6 @@
-#ifndef __MPU_H__
-#define __MPU_H__
+#ifndef __MPU_2_H__
+#define __MPU_2_H__
+
 #include <MPU6050_6Axis_MotionApps_V6_12.h>
 #include <Wire.h>
 
@@ -17,10 +18,16 @@ uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 //  !0 = error)
 
 Quaternion q;            // [w, x, y, z]         quaternion container
+VectorInt16 aa;         // [x, y, z]            accel sensor measurements
+VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
 VectorFloat gravity;     // [x, y, z]            gravity vector
 uint8_t fifoBuffer[64];  // FIFO storage buffer
 // static float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];  // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+
+uint16_t aclX = 0;
+uint16_t aclY = 0;
+uint16_t aclZ = 0;
 
 uint8_t devStatus;
 
@@ -72,7 +79,7 @@ void setup_mpu() {
 
     // enable Arduino interrupt detection
     ESP_LOGI(MPU_TAG, "enabling interrupt detection (external %d interrupt)", digitalPinToInterrupt(MPU_INTERRUPT_PIN));
-    mpuInterrupt = false;
+    // mpuInterrupt = false;
     attachInterrupt(digitalPinToInterrupt(MPU_INTERRUPT_PIN), dmpDataReady,
                     RISING);
     mpuIntStatus = mpu.getIntStatus();
@@ -95,5 +102,58 @@ void setup_mpu() {
   Serial.println(F("[setup_mpu] end setup"));
 }
 
+void update_mpu(void) {
+  if (dmpReady) {
+    if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
 
-#endif  // __MPU_H__
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetAccel(&aa, fifoBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+
+      aclX = aaReal.x;
+      aclY = aaReal.y;
+      aclZ = aaReal.z;
+
+      ESP_LOGD(MPU_TAG, "Acl X: %i\t\tAcl Y: %i\t\tAcl Z: %i", aaReal.x, aaReal.y, aaReal.z);
+
+
+
+      // mpu.dmpGetQuaternion(&q, fifoBuffer);
+      // mpu.dmpGetGravity(&gravity, &q);
+      // mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      // mpu.dmpGetQuaternion(&q, fifoBuffer);
+      // mpu.dmpGetEuler(euler, &q);
+
+      // angle_z = ypr[0] * 180 / M_PI;
+      // angle_x = ypr[1] * 180 / M_PI;
+      // angle_y = ypr[2] * 180 / M_PI;
+      // angle_z = euler[0] * 180 / M_PI;
+      // angle_x = euler[1] * 180 / M_PI;
+      // angle_y = euler[2] * 180 / M_PI;
+
+      // Serial.print("[ypr]\t");
+      // Serial.print(ypr[0] * 180 / M_PI);
+      // Serial.print("\t");
+      // Serial.print(ypr[1] * 180 / M_PI);
+      // Serial.print("\t");
+      // Serial.print(ypr[2] * 180 / M_PI);
+      // Serial.println();
+
+      // Serial.println(ypr[0] * 180 / M_PI);
+    }
+  }
+}
+
+void calibrate_mpu(void) {
+  ESP_LOGV(MPU_TAG, "Calibrating mpu");
+  
+  mpu.CalibrateAccel();
+  mpu.CalibrateGyro();
+
+  while(!dmpReady) {}
+
+  ESP_LOGV(MPU_TAG, "mpu has calibrated");
+}
+
+#endif  // __MPU_2_H__
