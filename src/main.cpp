@@ -1,12 +1,14 @@
 #include <Arduino.h>
 
 #include "logger.h"
+#include "rgb.h"
 
-static const char *TAG = "ESP";
+static const char *TAG = "SETUP";
 
 void setup() {
   setup_logger();
-  ESP_LOGI(TAG, "Test log info");
+  ESP_LOGV(TAG, "Init setup");
+  rgb.setColor(RGBLed::YELLOW);
 }
 
 void loop() {
