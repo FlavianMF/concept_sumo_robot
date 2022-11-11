@@ -10,7 +10,10 @@ extern TaskHandle_t rgb_task_handle;
 extern QueueHandle_t rgb_state_queue;
 
 typedef enum {
+  IDLE,
+  PASS,
   ANY_ERROR,
+  STATUS_OK,
 } rgb_state_t;
 
 void rgb_task(void *pvParameters);

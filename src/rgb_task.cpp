@@ -14,7 +14,7 @@ void rgb_task(void *pvParameters) {
 
   rgb_state_queue = xQueueCreate(1, sizeof(rgb_state_t));
 
-  rgb_state_t rgb_state;
+  rgb_state_t rgb_state = IDLE;
 
   uint64_t flash_time = 0;
 
@@ -22,8 +22,18 @@ void rgb_task(void *pvParameters) {
     xQueueReceive(rgb_state_queue, &rgb_state, 1);
 
     switch(rgb_state) {
+      case IDLE:
+        rgb_idle();
+        rgb_state = PASS;
+        break;
       case ANY_ERROR:
         rgb_any_error(&flash_time);
+        break;
+      case STATUS_OK:
+        rgb_successful();
+        rgb_state = PASS;
+        break;
+      case PASS:
         break;
       default:
         ESP_LOGW(TAG, "Invalid state: %d", rgb_state);

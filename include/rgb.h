@@ -10,6 +10,10 @@
 extern RGBLed rgb;
 // RGBLed rgb(RED_RGB_PIN, GREEN_RGB_PIN, BLUE_RGB_PIN, RGBLed::COMMON_CATHODE);
 
+void rgb_idle();
+
 void rgb_any_error(uint64_t *last_flash_time);
+
+void rgb_successful();
 
 #endif // __RGB_H__

@@ -11,3 +11,13 @@ void rgb_any_error(uint64_t *last_flash_time) {
     rgb.setColor(color_flag ? RGBLed::RED : RGBLed::YELLOW);
   }
 }
+
+void rgb_successful() {
+  rgb.setColor(RGBLed::GREEN);
+}
+
+void rgb_idle() {
+  rgb.off();
+}
+
+
