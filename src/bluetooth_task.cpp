@@ -1,27 +1,21 @@
 #include "tasks/bluetooth_task.h"
 
 #include "bluetooth.h"
-#include "tasks/mpu_task.h"
+#include "setup_tasks.h"
 
 TaskHandle_t bluetooth_task_handle;
-
-QueueHandle_t bluetooth_queue;
 
 static const char *TAG = "bluetooth_task";
 
 void bluetooth_task(void *pvParameters) {
-  uint16_t aclZ = 0;
+  ESP_LOGV(TAG, "bluetooth task init");
+  
+  xSemaphoreTake(setup_mutex, portMAX_DELAY);
+  setup_bluetooth();
+  xSemaphoreGive(setup_mutex);
 
-  // vTaskSuspend(NULL);
+  vTaskSuspend(NULL);
   while (true) {
-    if (bluetooth.connected()) {
-      xQueueReceive(mpu_queue, &aclZ, portMAX_DELAY);
-
-      bluetooth.print("aclZ: ");
-      bluetooth.println(aclZ);
-
-      // ESP_LOGD(TAG, "\nBluetooth plotted with: %i", aclZ);
-    }
     vTaskDelay(1);
   }
 }

@@ -1,6 +1,7 @@
 #include "tasks/mpu_task.h"
 
 #include "mpu.h"
+#include "setup_tasks.h"
 
 static const char *TAG = "mpu_task";
 
@@ -11,7 +12,9 @@ QueueHandle_t mpu_queue;
 void mpu_task(void *pvParameters) {
   ESP_LOGV(TAG,"Init mpu task");
 
+  xSemaphoreTake(setup_mutex, portMAX_DELAY);
   setup_mpu();
+  xSemaphoreGive(setup_mutex);
 
   // bool mpu_status = (bool)pvParameters;
 
@@ -24,7 +27,7 @@ void mpu_task(void *pvParameters) {
   vTaskSuspend(NULL);
   while (true) {
     // ESP_LOGD(TAG, "Time between calls: %ld us\n", (micros() - timer));
-    timer = micros();
+    // timer = micros();
 
     update_mpu();
 
