@@ -42,5 +42,5 @@ void setup_bluetooth(void) {
   ESP_ERROR_CHECK(bluetooth.register_callback(bluetooth_callback));
   ESP_LOGV(TAG, "Callback are registered");
 
-  ESP_LOGV(TAG, "Bluetooth are initted");
+  ESP_LOGI(TAG, "Bluetooth are initted");
 }
