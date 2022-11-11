@@ -7,6 +7,8 @@
 
 extern TaskHandle_t bluetooth_task_handle;
 
+extern float bluetooth_pwm;
+
 void bluetooth_task(void *pvParameters);
 
 void execute_bluetooth_command(char *message);

@@ -1,6 +1,7 @@
 #include "tasks/bluetooth_task.h"
 
 #include "bluetooth.h"
+#include "my_eeprom.h"
 #include "setup_tasks.h"
 #include "tasks/rgb_task.h"
 
@@ -8,26 +9,39 @@ TaskHandle_t bluetooth_task_handle;
 
 static const char *TAG = "bluetooth_task";
 
-// bool read_bluetooth_message(String *message) {
-//   if (bluetooth.available()) {
-//     char c = 0;
-//     while (bluetooth.available()) {
-//       c = bluetooth.read();
-//       *message += c;
-//       vTaskDelay(pdMS_TO_TICKS(3));
-//     }
-//     ESP_LOGD(TAG, "message: %s", message);
-//     return true;
-//   } else {
-//     return false;
-//   }
-// }
+float bluetooth_pwm = 0;
+
+static char *command;
+
+void read_float_value(char *message) {
+  ESP_LOGD(TAG, "value received: %s", message);
+
+  if (!strcmp(message, "?")) {
+    ESP_LOGV(TAG, "cancelling operation");
+
+    bluetooth.printf("End operation\n");
+
+    set_execute_command(execute_bluetooth_command);
+    return;
+  }
+
+  float variable = (float)atof(message);
+
+  update_prepared_variable(variable);
+  set_execute_command(execute_bluetooth_command);
+}
 
 void execute_bluetooth_command(char *message) {
   ESP_LOGD(TAG, "command: %s", message);
   
-  if (!strcmp(message, "pwm")) {
-    ESP_LOGD(TAG, "Pwm command received");
+  if (!strcmp(message, "F")) {
+    ESP_LOGV(TAG, "Forward command received");
+    // ESP_LOGD(TAG, "Pwm: %f", pwm);
+    // command = PWM;
+  } else {
+    if (prepare_variable_update(message)) {
+      set_execute_command(read_float_value);
+    }
   }
 }
 
