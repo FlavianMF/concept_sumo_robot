@@ -23,6 +23,6 @@ void bluetooth_callback(void);
  * @brief Set the up bluetooth object
  * 
  */
-void setup_bluetooth(void);
+bool setup_bluetooth(void);
 
 #endif // __BLUETOOTH_H__

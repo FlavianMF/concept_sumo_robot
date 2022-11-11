@@ -35,7 +35,7 @@ volatile bool mpuInterrupt;
 
 void dmpDataReady() { mpuInterrupt = true; };
 
-void setup_mpu() {
+bool setup_mpu() {
   ESP_LOGV(MPU_TAG, "setting up mpu");
 
   Wire.begin();
@@ -48,7 +48,7 @@ void setup_mpu() {
     ESP_LOGI(MPU_TAG, "connection established");
   } else {
     ESP_LOGE(MPU_TAG, "connection failed");
-    return;
+    return false;
   }
 
   pinMode(MPU_INTERRUPT_PIN, INPUT);
@@ -97,9 +97,11 @@ void setup_mpu() {
     // 2 = DMP configuration updates failed
     // (if it's going to break, usually the code will be 1)
     ESP_LOGE(MPU_TAG, "dmp initialization failed (code %d)", devStatus);
+    return false;
   }
 
-  Serial.println(F("[setup_mpu] end setup"));
+  ESP_LOGI(MPU_TAG, "mpu are setted");
+  return true;
 }
 
 void update_mpu(void) {

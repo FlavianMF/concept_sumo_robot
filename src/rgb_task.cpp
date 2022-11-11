@@ -14,7 +14,7 @@ void rgb_task(void *pvParameters) {
 
   rgb_state_queue = xQueueCreate(1, sizeof(rgb_state_t));
 
-  rgb_state_t rgb_state = IDLE;
+  rgb_state_t rgb_state = PASS;
 
   uint64_t flash_time = 0;
 
