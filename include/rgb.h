@@ -7,6 +7,9 @@
 #define GREEN_RGB_PIN 16
 #define BLUE_RGB_PIN 12
 
-RGBLed rgb(RED_RGB_PIN, GREEN_RGB_PIN, BLUE_RGB_PIN, RGBLed::COMMON_CATHODE);
+extern RGBLed rgb;
+// RGBLed rgb(RED_RGB_PIN, GREEN_RGB_PIN, BLUE_RGB_PIN, RGBLed::COMMON_CATHODE);
+
+void rgb_any_error(uint64_t *last_flash_time);
 
 #endif // __RGB_H__
