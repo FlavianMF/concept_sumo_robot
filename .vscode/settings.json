@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.m": "octave",
+    "*.tcc": "cpp",
+    "algorithm": "cpp"
+  }
+}

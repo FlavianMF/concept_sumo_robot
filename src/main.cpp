@@ -20,6 +20,6 @@ void setup() {
 }
 
 void loop() {
-  ESP_LOGV(TAG, "The time of the millis() is: %li", millis());
-  vTaskDelay(pdMS_TO_TICKS(5000));
+  // ESP_LOGV(TAG, "\nThe time of the millis() is: %li", millis());
+  // vTaskDelay(pdMS_TO_TICKS(5000));
 }
