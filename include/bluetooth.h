@@ -11,6 +11,10 @@
 #error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip.
 #endif
 
+typedef void (*func_t)(char *);
+
+void set_execute_command(func_t new_command_function);
+
 extern BluetoothSerial bluetooth;
 
 /**
