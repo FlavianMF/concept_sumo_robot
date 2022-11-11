@@ -3,8 +3,8 @@
 
 #include <RGBLed.h>
 
-#define RED_RGB_PIN 19
-#define GREEN_RGB_PIN 16
+#define RED_RGB_PIN 16
+#define GREEN_RGB_PIN 19
 #define BLUE_RGB_PIN 12
 
 extern RGBLed rgb;
