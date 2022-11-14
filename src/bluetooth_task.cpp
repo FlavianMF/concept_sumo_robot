@@ -9,6 +9,7 @@
 #include "tasks/rgb_task.h"
 #include "tasks/vl_task.h"
 #include "tasks/fight_task.h"
+#include "motors.h"
 
 TaskHandle_t bluetooth_task_handle;
 TaskHandle_t *debug_task_handle;
@@ -37,6 +38,8 @@ void prepare_debug_vls();
 void debug_edge_sensors();
 void debug_edge_vl_sensors();
 void start_fight();
+
+void stop_fight(char *message);
 
 static bluetooth_functions_t bluetooth_functions[] = {
     {
@@ -69,8 +72,18 @@ static bluetooth_functions_t bluetooth_functions[] = {
 static const int count_functions =
     sizeof(bluetooth_functions) / sizeof(bluetooth_functions[0]);
 
+void stop_fight(char *message) {
+  ESP_LOGV(TAG, "stop_fight");
+  bluetooth.printf("\nStop fight\n");
+  drive_motors(0,0);
+  vTaskDelete(fight_task_handle);
+  set_execute_command(execute_bluetooth_command);
+}
+
 void start_fight() {
   ESP_LOGV(TAG, "start_fight");
+  set_execute_command(stop_fight);
+  vTaskResume(vl_task_handle);
   xTaskCreatePinnedToCore(fight_task, "fight", 2048, NULL, 1, &fight_task_handle, 1);
 }
 

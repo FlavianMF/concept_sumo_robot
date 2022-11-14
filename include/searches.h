@@ -24,4 +24,13 @@ extern const int count_searches;
 
 extern float search_index;
 
+extern float front_vl_max;
+extern float left_vl_max;
+extern float right_vl_max;
+extern float back_vl_max;
+
+extern float rear_edge_time;
+extern float rear_attack_time;
+
+
 #endif // __SEARCHES_H__

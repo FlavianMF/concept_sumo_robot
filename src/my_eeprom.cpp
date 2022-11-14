@@ -52,6 +52,18 @@ static variable_t variables[] = {
         .init_value = 0,
     },
     {
+        .name = (char*)"Rear attacking time",
+        .command = (char*)"ratkt",
+        .variable = &rear_attack_time,
+        .init_value = 100,
+    },
+    {
+        .name = (char*)"Rear edge time",
+        .command = (char*)"redgt",
+        .variable = &rear_edge_time,
+        .init_value = 100,
+    },
+    {
         .name = (char*)"Accel time",
         .command = (char*)"acl",
         .variable = &accel_time,
@@ -104,6 +116,30 @@ static variable_t variables[] = {
         .command = (char*)"lel",
         .variable = &right_edge_limit,
         .init_value = 2048,
+    },
+    {
+        .name = (char*)"Front VL Max",
+        .command = (char*)"fvlm",
+        .variable = &front_vl_max,
+        .init_value = 500,
+    },
+    {
+        .name = (char*)"Left VL Max",
+        .command = (char*)"lvlm",
+        .variable = &left_vl_max,
+        .init_value = 500,
+    },
+    {
+        .name = (char*)"Right VL Max",
+        .command = (char*)"rvlm",
+        .variable = &right_vl_max,
+        .init_value = 500,
+    },
+    {
+        .name = (char*)"Back VL Max",
+        .command = (char*)"bvlm",
+        .variable = &back_vl_max,
+        .init_value = 500,
     },
     {
         .name = (char*)"Current output",
