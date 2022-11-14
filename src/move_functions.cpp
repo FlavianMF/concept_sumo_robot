@@ -34,8 +34,8 @@ void forward_move(float pwm, float time) {
   xQueueSend(mpu_calibrate_queue, &calibrate_mpu, portMAX_DELAY);
   xQueueReceive(mpu_queue, &acl_z, portMAX_DELAY);
   
-  // float right_pwm;
-  // float left_pwm;
+  float right_pwm;
+  float left_pwm;
 
   QuickPID pid(&accel_z, &pid_error, &accel_setpoint);
   pid.SetTunings(linear_kp, linear_ki, linear_kd);
@@ -48,7 +48,6 @@ void forward_move(float pwm, float time) {
   uint64_t timer = millis();
   while (millis() < timer + time) {
 
-    ESP_LOGD(TAG, "pid: %f  acl:%i  accel:%f", pid_error, acl_z, accel_z);
 
     delta = millis() - timer;
     if (accel_time != 0 && delta < accel_time) {
@@ -60,13 +59,23 @@ void forward_move(float pwm, float time) {
     pid.Compute();
     
     if (pid_error > 0) {
-      drive_motors(ramp_pwm, ramp_pwm * (1 - pid_error));
+      right_pwm = ramp_pwm;
+      left_pwm = ramp_pwm * (1 - pid_error);
+      // drive_motors(ramp_pwm, ramp_pwm * (1 - pid_error));
     } else if (pid_error < 0) {
-      drive_motors(ramp_pwm * (1 + pid_error), ramp_pwm);
+      left_pwm = ramp_pwm;
+      right_pwm = ramp_pwm * (1 + pid_error);
+      // drive_motors(ramp_pwm * (1 + pid_error), ramp_pwm);
     } else {
-      drive_motors(ramp_pwm, ramp_pwm);
+      left_pwm = ramp_pwm;
+      right_pwm = ramp_pwm;
+      // drive_motors(ramp_pwm, ramp_pwm);
     }
 
+    drive_motors(left_pwm, right_pwm);
+
+
+    ESP_LOGD(TAG, "pid: %f  l:%f  r:%f", pid_error, left_pwm, right_pwm);
     xQueueReceive(mpu_queue, &acl_z, 1);
     accel_z = (float)acl_z;
   }
