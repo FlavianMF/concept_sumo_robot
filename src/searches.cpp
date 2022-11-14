@@ -54,7 +54,7 @@ void tornado_search() {
 
   float *search_pwm = &searches[(int)search_index].variables[SEARCH_PWM];
   float *attacking_pwm = &searches[(int)search_index].variables[SEARCH_PWM_MAX];
-  float *direction = &searches[(int)search_index].variables[SEARCH_DIRECTION];
+  float direction = searches[(int)search_index].variables[SEARCH_DIRECTION];
   float *attacking_time = &searches[(int)search_index].variables[SEARCH_REAR_TIME];
 
   vl_readings_t vl_readings;
@@ -67,10 +67,10 @@ void tornado_search() {
   while (true) {
     switch (state) {
       case SEARCHING:
-        bluetooth.printf("Searching: %s\n", *direction == 1 ? "right" : "left");
-        drive_motors(*search_pwm * (*direction),
-                     *search_pwm * (*direction * -1));
-        *direction *= -1;
+        bluetooth.printf("Searching: %s\n", direction == 1 ? "right" : "left");
+        drive_motors(*search_pwm * (direction),
+                     *search_pwm * (direction * -1));
+        direction *= -1;
         break;
       case ATTACKING:
         // bluetooth.printf("Attacking\n");
