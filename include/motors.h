@@ -13,6 +13,9 @@
 #define left_wheel_pwm_frequency 50
 #define left_wheel_pwm_resolution 16
 
+extern float left_gain;
+extern float right_gain;
+
 /**
  * @brief Set the up motors
  * 

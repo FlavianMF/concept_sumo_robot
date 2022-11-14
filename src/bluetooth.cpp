@@ -61,3 +61,7 @@ bool setup_bluetooth(void) {
   ESP_LOGI(TAG, "Bluetooth are initted");
   return true;
 }
+
+void end_bluetooth() {
+  bluetooth.end();
+}

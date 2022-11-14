@@ -9,6 +9,8 @@ extern TaskHandle_t mpu_task_handle;
 
 extern QueueHandle_t mpu_queue;
 
+extern QueueHandle_t mpu_calibrate_queue;
+
 void mpu_task(void *pvParameters);
 
 #endif // __MPU_TASK_H__

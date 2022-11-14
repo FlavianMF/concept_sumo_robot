@@ -4,6 +4,10 @@
 #include "setup_tasks.h"
 #include "tasks/bluetooth_task.h"
 #include "tasks/rgb_task.h"
+#include "move_functions.h"
+#include "tasks/motors_task.h"
+#include "tasks/edge_task.h"
+#include "motors.h"
 
 static const char* TAG = "eeprom";
 
@@ -14,14 +18,81 @@ static variable_t variables[] = {
     {
         .name = (char*)"Pwm",
         .command = (char*)"pwm",
-        .variable = &bluetooth_pwm,
+        .variable = &pwm,
         .init_value = 0,
+    },
+    {
+        .name = (char*)"Time",
+        .command = (char*)"time",
+        .variable = &linear_time,
+        .init_value = 0,
+    },
+    {
+        .name = (char*)"Accel time",
+        .command = (char*)"acl",
+        .variable = &accel_time,
+        .init_value = 100,
+    },
+    {
+        .name = (char*)"Slow time",
+        .command = (char*)"slw",
+        .variable = &slow_time,
+        .init_value = 100,
+    },
+    {
+        .name = (char*)"Left Gain",
+        .command = (char*)"lg",
+        .variable = &left_gain,
+        .init_value = 1,
+    },
+    {
+        .name = (char*)"Right Gain",
+        .command = (char*)"rg",
+        .variable = &right_gain,
+        .init_value = 1,
+    },
+    {
+        .name = (char*)"Linear KP",
+        .command = (char*)"lkp",
+        .variable = &linear_kp,
+        .init_value = 1,
+    },
+    {
+        .name = (char*)"Linear KI",
+        .command = (char*)"lki",
+        .variable = &linear_ki,
+        .init_value = 0,
+    },
+    {
+        .name = (char*)"Linear KD",
+        .command = (char*)"lkd",
+        .variable = &linear_kd,
+        .init_value = 0,
+    },
+    {
+        .name = (char*)"Right Edge Limit",
+        .command = (char*)"rel",
+        .variable = &right_edge_limit,
+        .init_value = 2048,
+    },
+    {
+        .name = (char*)"Left Edge Limit",
+        .command = (char*)"lel",
+        .variable = &right_edge_limit,
+        .init_value = 2048,
     },
 };
 
 static uint16_t prepared_variable_index;
 
-const int count_variables = sizeof(variables) / sizeof(variables[0]);
+static const int count_variables = sizeof(variables) / sizeof(variables[0]);
+
+void debug_eeprom_variables() {
+  for (int i = 0; i < count_variables; i++) {
+    ESP_LOGD(TAG, "Variable %s [%s]: %.6f", variables[i].name, variables[i].command, *variables[i].variable);
+    bluetooth.printf("Variable %s [%s]: %.6f\n", variables[i].name, variables[i].command, *variables[i].variable);
+  }
+}
 
 void update_prepared_variable(float value) {
   *variables[prepared_variable_index].variable = value;

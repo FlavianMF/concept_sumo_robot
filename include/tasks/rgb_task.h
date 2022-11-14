@@ -14,6 +14,8 @@ typedef enum {
   PASS,
   ANY_ERROR,
   STATUS_OK,
+  PREPARED,
+  STOPPED,
 } rgb_state_t;
 
 void rgb_task(void *pvParameters);

@@ -7,3 +7,9 @@
 [submodule "lib/QuickPID"]
 	path = lib/QuickPID
 	url = https://github.com/Dlloydev/QuickPID.git
+[submodule "lib/Adafruit_VL53L0X"]
+	path = lib/Adafruit_VL53L0X
+	url = https://github.com/adafruit/Adafruit_VL53L0X.git
+[submodule "lib/IRremoteESP8266"]
+	path = lib/IRremoteESP8266
+	url = https://github.com/crankyoldgit/IRremoteESP8266.git

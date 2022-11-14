@@ -1,5 +1,5 @@
-#ifndef __MPU_2_H__
-#define __MPU_2_H__
+#ifndef __MY_MPU_H__
+#define __MY_MPU_H__
 
 #include <MPU6050_6Axis_MotionApps_V6_12.h>
 #include <Wire.h>
@@ -25,9 +25,9 @@ uint8_t fifoBuffer[64];  // FIFO storage buffer
 // static float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];  // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
-uint16_t aclX = 0;
-uint16_t aclY = 0;
-uint16_t aclZ = 0;
+int16_t aclX = 0;
+int16_t aclY = 0;
+int16_t aclZ = 0;
 
 uint8_t devStatus;
 
@@ -108,16 +108,18 @@ void update_mpu(void) {
   if (dmpReady) {
     if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
 
-      mpu.dmpGetQuaternion(&q, fifoBuffer);
-      mpu.dmpGetAccel(&aa, fifoBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+      // mpu.dmpGetQuaternion(&q, fifoBuffer);
+      // mpu.dmpGetAccel(&aa, fifoBuffer);
+      // mpu.dmpGetGravity(&gravity, &q);
+      // mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+      mpu.dmpGetGyro(&aa, fifoBuffer);
+      // mpu.dmpget
 
-      aclX = aaReal.x;
-      aclY = aaReal.y;
-      aclZ = aaReal.z;
+      aclX = (aa.x / 131);
+      aclY = (aa.y / 131);
+      aclZ = (aa.z / 131);
 
-      ESP_LOGD(MPU_TAG, "Acl X: %i\t\tAcl Y: %i\t\tAcl Z: %i", aaReal.x, aaReal.y, aaReal.z);
+      // ESP_LOGD(MPU_TAG, "Acl X: %i\tAcl Y: %i\tAcl Z: %i", aclX, aclY, aclZ);
 
 
 
@@ -158,4 +160,4 @@ void calibrate_mpu(void) {
   ESP_LOGV(MPU_TAG, "mpu has calibrated");
 }
 
-#endif  // __MPU_2_H__
+#endif // __MY_MPU_H__

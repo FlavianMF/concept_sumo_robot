@@ -29,4 +29,6 @@ void bluetooth_callback(void);
  */
 bool setup_bluetooth(void);
 
+void end_bluetooth();
+
 #endif // __BLUETOOTH_H__
