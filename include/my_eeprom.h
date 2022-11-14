@@ -27,6 +27,9 @@ void update_prepared_variable(float value );
 
 void debug_eeprom_variables();
 
+void debug_searches();
+
+void debug_searches_variables();
 // extern variable_t variables[];
 
 #endif // __MY_EEPROM_H__

@@ -4,6 +4,7 @@
 #include "motors.h"
 #include "move_functions.h"
 #include "outputs.h"
+#include "searches.h"
 #include "setup_tasks.h"
 #include "tasks/bluetooth_task.h"
 #include "tasks/edge_task.h"
@@ -31,6 +32,8 @@ enum variable_type_flag_t {
 };
 
 static variable_type_flag_t variable_type_flag;
+
+static searches_variables_t search_variable_flag;
 
 void debug_output_variables();
 
@@ -107,6 +110,12 @@ static variable_t variables[] = {
         .variable = &output_index,
         .init_value = 0,
     },
+    {
+        .name = (char*)"Current searches",
+        .command = (char*)"cs",
+        .variable = &search_index,
+        .init_value = 0,
+    },
 };
 
 static uint16_t prepared_variable_index;
@@ -134,11 +143,27 @@ void debug_output_variables() {
   //         .variables.angle_pwm);
 }
 
+void debug_searches_variables() {
+  bluetooth.printf("\n%s\n", searches[(int)search_index].name);
+  for (int i = 0; i < 4; i++) {
+    bluetooth.printf("%s: %f\n", searches_commands[i],
+                     searches[(int)search_index].variables[i]);
+  }
+}
+
 void debug_outputs() {
   // vTaskDelay(pdMS_TO_TICKS(1));
   bluetooth.printf("\n");
   for (int i = 0; i < count_outputs; i++) {
     bluetooth.printf("[%i] %s\n", i, outputs[i].name);
+  }
+}
+
+void debug_searches() {
+  // vTaskDelay(pdMS_TO_TICKS(1));
+  bluetooth.printf("\n");
+  for (int i = 0; i < count_searches; i++) {
+    bluetooth.printf("[%i] %s\n", i, searches[i].name);
   }
 }
 
@@ -179,6 +204,9 @@ void update_prepared_variable(float value) {
           return;
           break;
       }
+      break;
+    case SEARCHES:
+      searches[(int)search_index].variables[search_variable_flag] = value;
       break;
     default:
       return;
@@ -235,10 +263,17 @@ void update_prepared_variable(float value) {
           break;
       }
       break;
+    case SEARCHES:
+      bluetooth.printf("%s saved, value: %f\n", searches_commands[search_variable_flag], searches[(int)search_index].variables[search_variable_flag]);
+      break;
+    default:
+      break;
   }
 
   if (!strcmp(variables[prepared_variable_index].command, "co")) {
     debug_output_variables();
+  } else if (!strcmp(variables[prepared_variable_index].command, "cs")) {
+    debug_searches_variables();
   }
 }
 
@@ -254,6 +289,9 @@ bool prepare_variable_update(char* command) {
 
       if (!strcmp(command, "co")) {
         debug_outputs();
+        bluetooth.printf("\n");
+      } else if (!strcmp(command, "cs")) {
+        debug_searches();
         bluetooth.printf("\n");
       }
 
@@ -295,6 +333,19 @@ bool prepare_variable_update(char* command) {
     return true;
   }
 
+  for (int i = 0; i < 4; i++) {
+    if (!strcmp(command, searches_commands[i])) {
+      variable_type_flag = SEARCHES;
+      search_variable_flag = (searches_variables_t)i;
+      prepared_variable_index = ((count_outputs * 4) + count_variables) +
+                                ((int)search_index * 4) + (i + 1);
+      bluetooth.printf("\n%s\n%s: %f\n New: ", searches[(int)search_index].name,
+                       searches_commands[i],
+                       searches[(int)search_index].variables[i]);
+      return true;
+    }
+  }
+
   ESP_LOGW(TAG, "command \"%s\" are not a variable", command);
   return false;
 }
@@ -304,7 +355,8 @@ void initialize_variables(void) {
 
   xSemaphoreTake(setup_mutex, portMAX_DELAY);
 
-  if (!EEPROM.begin(sizeof(float) * (count_variables + (count_outputs * 4)))) {
+  if (!EEPROM.begin(sizeof(float) * (count_variables + (count_outputs * 4) +
+                                     (count_searches * 4)))) {
     ESP_LOGE(TAG, "EEPROM.begin failed");
     setup_flag = true;
     init_flag = false;
@@ -330,6 +382,12 @@ void initialize_variables(void) {
     EEPROM.get(++i * sizeof(float), outputs[j].variables.angle);
     EEPROM.get(++i * sizeof(float), outputs[j].variables.linear_pwm);
     EEPROM.get(++i * sizeof(float), outputs[j].variables.angle_pwm);
+  }
+
+  for (int j = 0; j < count_searches; j++) {
+    for (int k = 0; k < 4; k++) {
+      EEPROM.get(++i * sizeof(float), searches[j].variables[k]);
+    }
   }
 
   ESP_LOGV(TAG, "Variables are initialized");

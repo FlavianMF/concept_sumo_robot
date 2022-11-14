@@ -12,7 +12,6 @@ typedef struct {
 
 typedef struct {
   char *name;
-  char *command;
   output_function_t output;
   output_variables_t variables;
 } outputs_t;

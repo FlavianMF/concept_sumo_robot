@@ -17,7 +17,6 @@ char *output_variables_commands[] = {
 outputs_t outputs[] = {
   {
     .name = (char*)"Linear timed",
-    .command = (char*)"olt",
     .output = linear_output,
     .variables = {
       .time = 500,
@@ -28,7 +27,6 @@ outputs_t outputs[] = {
   },
   {
     .name = (char*)"turn right angle",
-    .command = (char*)"otra",
     .output = turn_right_and_front_output,
     .variables = {
       .time = 300,

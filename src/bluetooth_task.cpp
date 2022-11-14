@@ -124,6 +124,7 @@ void debug_functions_and_variables() {
   debug_bluetooth_functions();
   debug_eeprom_variables();
   debug_output_variables();
+  debug_searches_variables();
 }
 
 void debug_bluetooth_functions() {
