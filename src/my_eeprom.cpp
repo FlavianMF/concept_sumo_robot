@@ -8,6 +8,7 @@
 #include "setup_tasks.h"
 #include "tasks/bluetooth_task.h"
 #include "tasks/edge_task.h"
+#include "tasks/fight_task.h"
 #include "tasks/motors_task.h"
 #include "tasks/rgb_task.h"
 
@@ -231,6 +232,13 @@ void update_prepared_variable(float value) {
       bluetooth.printf("\n%s saved successfully, value: %f\n",
                        variables[prepared_variable_index].name,
                        *variables[prepared_variable_index].variable);
+      if (!strcmp(variables[prepared_variable_index].command, "co")) {
+        output = outputs[(int)output_index].output;
+        bluetooth.printf("%s\n", outputs[(int)output_index].name);
+      } else if (!strcmp(variables[prepared_variable_index].command, "cs")) {
+        search = searches[(int)search_index].search;
+        bluetooth.printf("%s\n", searches[(int)search_index].name);
+      }
       break;
     case OUTPUTS:
       switch (output_variable_flag) {
@@ -264,7 +272,9 @@ void update_prepared_variable(float value) {
       }
       break;
     case SEARCHES:
-      bluetooth.printf("%s saved, value: %f\n", searches_commands[search_variable_flag], searches[(int)search_index].variables[search_variable_flag]);
+      bluetooth.printf(
+          "%s saved, value: %f\n", searches_commands[search_variable_flag],
+          searches[(int)search_index].variables[search_variable_flag]);
       break;
     default:
       break;
@@ -389,6 +399,9 @@ void initialize_variables(void) {
       EEPROM.get(++i * sizeof(float), searches[j].variables[k]);
     }
   }
+
+  output = outputs[(int)output_index].output;
+  search = searches[(int)search_index].search;
 
   ESP_LOGV(TAG, "Variables are initialized");
   xSemaphoreGive(setup_mutex);

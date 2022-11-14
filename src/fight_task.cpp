@@ -12,8 +12,6 @@ fight_function_t search;
 void fight_task(void *pvParameters) {
   ESP_LOGV(TAG, "fight_task");
 
-  vTaskSuspend(NULL);
-
   output();
 
   search();

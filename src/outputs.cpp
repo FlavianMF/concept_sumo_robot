@@ -1,11 +1,12 @@
 #include "outputs.h"
 
 #include "esp32-hal-log.h"
+#include "bluetooth.h"
 
 static const char *TAG = "outputs";
 
 void linear_output();
-void turn_right_and_front_output();
+void right_front_output();
 
 char *output_variables_commands[] = {
   (char*)"otime",
@@ -26,8 +27,8 @@ outputs_t outputs[] = {
     }
   },
   {
-    .name = (char*)"turn right angle",
-    .output = turn_right_and_front_output,
+    .name = (char*)"right->front",
+    .output = right_front_output,
     .variables = {
       .time = 300,
       .angle = 45,
@@ -55,17 +56,13 @@ void set_output(uint8_t index) {
   ESP_LOGD(TAG, "Set output %d %s", output_index, outputs[(int)output_index].name);
 }
 
-// void debug_output_variables() {
-//   ESP_LOGV(TAG, "debug_output_variables");
-
-
-// }
-
-
 void linear_output()  {
-  
+  ESP_LOGV(TAG, "linear_output");
+  bluetooth.printf("\nOUT: linear_output");
 }
 
-void turn_right_and_front_output() {
+void right_front_output() {
+  ESP_LOGV(TAG, "right_front_output");
+  bluetooth.printf("\nOUT: right_front_output");
 
 }

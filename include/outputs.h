@@ -26,7 +26,7 @@ extern const int count_outputs;
 
 // void linear_output(float time);
 
-void debug_output_variables();
+// void debug_output_variables();
 
 
 #endif // __OUTPUTS_H__
