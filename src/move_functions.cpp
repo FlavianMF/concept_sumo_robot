@@ -33,6 +33,7 @@ void forward_move(float pwm, float time) {
   vTaskResume(mpu_task_handle);
   xQueueSend(mpu_calibrate_queue, &calibrate_mpu, portMAX_DELAY);
   xQueueReceive(mpu_queue, &acl_z, portMAX_DELAY);
+  
   // float right_pwm;
   // float left_pwm;
 
@@ -55,7 +56,7 @@ void forward_move(float pwm, float time) {
     } else if (slow_time != 0 && delta > time - slow_time) {
       ramp_pwm = map(delta, time - slow_time, time, pwm, 0);
     }
-    
+
     pid.Compute();
     
     if (pid_error > 0) {

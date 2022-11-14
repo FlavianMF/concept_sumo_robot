@@ -2,10 +2,11 @@
 
 #include "bluetooth.h"
 #include "my_eeprom.h"
+#include "outputs.h"
 #include "setup_tasks.h"
-#include "tasks/rgb_task.h"
-#include "tasks/motors_task.h"
 #include "tasks/edge_task.h"
+#include "tasks/motors_task.h"
+#include "tasks/rgb_task.h"
 #include "tasks/vl_task.h"
 
 TaskHandle_t bluetooth_task_handle;
@@ -37,23 +38,23 @@ void debug_edge_vl_sensors();
 
 static bluetooth_functions_t bluetooth_functions[] = {
     {
-        .name = (char*)"Menu",
-        .command = (char*)"?",
+        .name = (char *)"Menu",
+        .command = (char *)"?",
         .function = debug_functions_and_variables,
     },
     {
-        .name = (char*)"Forward",
-        .command = (char*)"F",
+        .name = (char *)"Forward",
+        .command = (char *)"F",
         .function = send_forward_move,
     },
     {
-        .name = (char*)"Debug edge sensors",
-        .command = (char*)"des",
+        .name = (char *)"Debug edge sensors",
+        .command = (char *)"des",
         .function = prepare_debug_edges,
     },
     {
-        .name = (char*)"Debug vl sensors",
-        .command = (char*)"dvs",
+        .name = (char *)"Debug vl sensors",
+        .command = (char *)"dvs",
         .function = prepare_debug_vls,
     },
 };
@@ -86,20 +87,22 @@ void prepare_debug_vls() {
 
 void debug_edge_sensors() {
   ESP_LOGV(TAG, "debug_edge_sensors");
-  
+
   edge_infos_t edge_infos;
 
   xQueueReceive(edge_queue, &edge_infos, portMAX_DELAY);
 
-  ESP_LOGD(TAG, "LE: %d    RE: %d", edge_infos.left_edge, edge_infos.right_edge);
-  bluetooth.printf("LE: %d    RE: %d\n", edge_infos.left_edge, edge_infos.right_edge);
+  ESP_LOGD(TAG, "LE: %d    RE: %d", edge_infos.left_edge,
+           edge_infos.right_edge);
+  bluetooth.printf("LE: %d    RE: %d\n", edge_infos.left_edge,
+                   edge_infos.right_edge);
 
   vTaskDelay(pdMS_TO_TICKS(3));
 }
 
 void debug_edge_vl_sensors() {
   ESP_LOGV(TAG, "debug_vl_sensors");
-  
+
   vl_readings_t vl_readings;
 
   xQueueReceive(vl_queue, &vl_readings, portMAX_DELAY);
@@ -110,7 +113,7 @@ void debug_edge_vl_sensors() {
   vTaskDelay(pdMS_TO_TICKS(3));
 }
 
-void  send_forward_move() {
+void send_forward_move() {
   ESP_LOGV(TAG, "send_forward_move");
   motors_functions_t function = FORWARD;
   xQueueSend(motors_queue, &function, portMAX_DELAY);
@@ -120,14 +123,15 @@ void debug_functions_and_variables() {
   ESP_LOGV(TAG, "debug_functions_and_variables");
   debug_bluetooth_functions();
   debug_eeprom_variables();
+  debug_output_variables();
 }
 
 void debug_bluetooth_functions() {
   for (int i = 0; i < count_functions; i++) {
-    ESP_LOGD(TAG, "Function %s [%s]", bluetooth_functions[i].name,
-             bluetooth_functions[i].command);
-    bluetooth.printf("Function %s [%s]\n", bluetooth_functions[i].name,
-                     bluetooth_functions[i].command);
+    ESP_LOGD(TAG, "[%s] %s", bluetooth_functions[i].command,
+             bluetooth_functions[i].name);
+    bluetooth.printf("[%s] %s\n", bluetooth_functions[i].command,
+                     bluetooth_functions[i].name);
   }
 }
 
@@ -163,6 +167,10 @@ void execute_bluetooth_command(char *message) {
     set_execute_command(read_float_value);
     return;
   }
+
+  // if (prepare_output_variable_update(message))  {
+  //   set
+  // }
 }
 
 void bluetooth_task(void *pvParameters) {
