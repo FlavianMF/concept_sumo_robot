@@ -44,6 +44,10 @@ void rgb_task(void *pvParameters) {
         break;
       case PASS:
         break;
+      case PREPARING: 
+        rgb.setColor(RGBLed::BLUE);
+        rgb_state = PASS;
+        break;
       default:
         ESP_LOGW(TAG, "Invalid state: %d", rgb_state);
         break;

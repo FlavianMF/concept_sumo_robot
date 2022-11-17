@@ -73,7 +73,7 @@ void tornado_search() {
         direction *= -1;
         break;
       case ATTACKING:
-        // bluetooth.printf("Attacking\n");
+        bluetooth.printf("Attacking\n");
         // start_attack = millis();
         drive_motors(*attacking_pwm, *attacking_pwm);
         break;
@@ -94,21 +94,28 @@ void tornado_search() {
     while (!receive_info) {
       if (state == ATTACKING && millis() > start_attack + *attacking_time) {
         state = GO_BACK_ATTACK;
+        drive_motors(0,0);
+
         receive_info = true;
         break;
       }
       if (xQueueReceive(edge_queue, &edge_infos, 1) == pdTRUE) {
         if (edge_infos.left_edge == 1 || edge_infos.right_edge == 1) {
           state = GO_BACK_EDGE;
+          drive_motors(0,0);
+
 
           receive_info = true;
           break;
         }
       }
       if (xQueueReceive(vl_queue, &vl_readings, 1) == pdTRUE) {
+          // bluetooth.printf("front vl: %d\n", vl_readings.front_reading);
         if (vl_readings.front_reading < front_vl_max) {
+          // bluetooth.printf("front vl: %d\n", vl_readings.front_reading);
           if (state != ATTACKING) {
-            bluetooth.printf("Attacking\n");
+            // bluetooth.printf("Attacking\n");
+            drive_motors(0,0);
             start_attack = millis();
           }
 
@@ -119,12 +126,15 @@ void tornado_search() {
         } else if (state != SEARCHING) {
           state = SEARCHING;
 
+
           receive_info = true;
           break;
         }
       }
+      vTaskDelay(1);
     }
     receive_info = false;
+    vTaskDelay(1);
   }
 }
 

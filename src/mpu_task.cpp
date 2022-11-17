@@ -11,6 +11,8 @@ TaskHandle_t mpu_task_handle = NULL;
 QueueHandle_t mpu_queue;
 QueueHandle_t mpu_calibrate_queue;
 
+mpu_infos_t mpu_infos_origin;
+
 void mpu_task(void *pvParameters) {
   ESP_LOGV(TAG, "Init mpu task");
 
@@ -31,11 +33,11 @@ void mpu_task(void *pvParameters) {
   // if (!mpu_status)
   //   vTaskDelete(mpu_task_handle);
 
-  mpu_queue = xQueueCreate(1, sizeof(uint16_t));
+  mpu_queue = xQueueCreate(1, sizeof(mpu_infos_t));
   mpu_calibrate_queue = xQueueCreate(1, sizeof(bool));
   // uint64_t timer = 0;
 
-  vTaskSuspend(NULL);
+  // vTaskSuspend(NULL);
   while (true) {
     // ESP_LOGD(TAG, "Time between calls: %ld us\n", (micros() - timer));
     // timer = micros();
@@ -48,6 +50,14 @@ void mpu_task(void *pvParameters) {
 
     update_mpu();
 
-    xQueueSend(mpu_queue, &aclZ, 1);
+    mpu_infos_origin.aclX = (aa.x / 131);
+    mpu_infos_origin.aclY = (aa.y / 131);
+    mpu_infos_origin.aclZ = (aa.z / 131);
+
+    mpu_infos_origin.angX = euler[1] * 180 / M_PI;
+    mpu_infos_origin.angY = euler[2] * 180 / M_PI;
+    mpu_infos_origin.angZ = euler[0] * 180 / M_PI;
+
+    xQueueSend(mpu_queue, &mpu_infos_origin, portMAX_DELAY);
   }
 }

@@ -17,17 +17,23 @@ uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 // success,
 //  !0 = error)
 
-Quaternion q;            // [w, x, y, z]         quaternion container
-VectorInt16 aa;         // [x, y, z]            accel sensor measurements
-VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
+Quaternion q;    // [w, x, y, z]         quaternion container
+VectorInt16 aa;  // [x, y, z]            accel sensor measurements
+VectorInt16
+    aaReal;  // [x, y, z]            gravity-free accel sensor measurements
 VectorFloat gravity;     // [x, y, z]            gravity vector
 uint8_t fifoBuffer[64];  // FIFO storage buffer
-// static float euler[3];         // [psi, theta, phi]    Euler angle container
-float ypr[3];  // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+static float euler[3];   // [psi, theta, phi]    Euler angle container
+float
+    ypr[3];  // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 int16_t aclX = 0;
 int16_t aclY = 0;
 int16_t aclZ = 0;
+
+int16_t angX = 0;
+int16_t angY = 0;
+int16_t angZ = 0;
 
 uint8_t devStatus;
 
@@ -78,7 +84,8 @@ bool setup_mpu() {
     mpu.setDMPEnabled(true);
 
     // enable Arduino interrupt detection
-    ESP_LOGI(MPU_TAG, "enabling interrupt detection (external %d interrupt)", digitalPinToInterrupt(MPU_INTERRUPT_PIN));
+    ESP_LOGI(MPU_TAG, "enabling interrupt detection (external %d interrupt)",
+             digitalPinToInterrupt(MPU_INTERRUPT_PIN));
     // mpuInterrupt = false;
     attachInterrupt(digitalPinToInterrupt(MPU_INTERRUPT_PIN), dmpDataReady,
                     RISING);
@@ -104,26 +111,36 @@ bool setup_mpu() {
   return true;
 }
 
-void update_mpu(void) {
+void update_mpu() {
   if (dmpReady) {
     if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
-
-      // mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetEuler(euler, &q);
+      mpu.dmpGetGyro(&aa, fifoBuffer);
       // mpu.dmpGetAccel(&aa, fifoBuffer);
       // mpu.dmpGetGravity(&gravity, &q);
       // mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-      mpu.dmpGetGyro(&aa, fifoBuffer);
       // mpu.dmpget
 
       aclX = (aa.x / 131);
       aclY = (aa.y / 131);
       aclZ = (aa.z / 131);
 
+      angX = euler[1] * 180 / M_PI;
+      angY = euler[2] * 180 / M_PI;
+      angZ = euler[0] * 180 / M_PI;
+
+      // mpu_infos_origin.aclX = (aa.x / 131);
+      // mpu_infos_origin.aclY = (aa.y / 131);
+      // mpu_infos_origin.aclZ = (aa.z / 131);
+
+      // mpu_infos_origin.angX = euler[1] * 180 / M_PI;
+      // mpu_infos_origin.angY = euler[2] * 180 / M_PI;
+      // mpu_infos_origin.angZ = euler[0] * 180 / M_PI;
+
       // ESP_LOGD(MPU_TAG, "Acl X: %i\tAcl Y: %i\tAcl Z: %i", aclX, aclY, aclZ);
 
-
-
-      // mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
       // mpu.dmpGetGravity(&gravity, &q);
       // mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
       // mpu.dmpGetQuaternion(&q, fifoBuffer);
@@ -151,13 +168,14 @@ void update_mpu(void) {
 
 void calibrate_mpu(void) {
   ESP_LOGV(MPU_TAG, "Calibrating mpu");
-  
+
   mpu.CalibrateAccel();
   mpu.CalibrateGyro();
 
-  while(!dmpReady) {}
+  while (!dmpReady) {
+  }
 
   ESP_LOGV(MPU_TAG, "mpu has calibrated");
 }
 
-#endif // __MY_MPU_H__
+#endif  // __MY_MPU_H__

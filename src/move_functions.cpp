@@ -5,7 +5,7 @@
 #include <QuickPID.h>
 
 #include "tasks/mpu_task.h"
-// #include "my_mpu.h"
+#include "bluetooth.h"
 
 static const char *TAG = "move_functions";
 
@@ -16,11 +16,6 @@ float linear_kp = 1;
 float linear_ki = 0;
 float linear_kd = 0;
 
-static int16_t acl_z = 0;
-static float accel_z = 0;
-static float pid_error = 0;
-static float accel_setpoint = 0;
-
 void stop_motors()  {
   ESP_LOGV(TAG, "stop_motors");
   drive_motors(0, 0);
@@ -29,13 +24,19 @@ void stop_motors()  {
 void forward_move(float pwm, float time) {
   ESP_LOGV( TAG, "Forward with %f for %f milliseconds", pwm, time);
 
+  float right_pwm;
+  float left_pwm;
+
+  int16_t acl_z = 0;
+  float accel_z = 0;
+  float pid_error = 0;
+  float accel_setpoint = 0;
+
   bool calibrate_mpu = true;
   vTaskResume(mpu_task_handle);
   xQueueSend(mpu_calibrate_queue, &calibrate_mpu, portMAX_DELAY);
   xQueueReceive(mpu_queue, &acl_z, portMAX_DELAY);
-  
-  float right_pwm;
-  float left_pwm;
+  xQueueReceive(mpu_queue, &acl_z, portMAX_DELAY);
 
   QuickPID pid(&accel_z, &pid_error, &accel_setpoint);
   pid.SetTunings(linear_kp, linear_ki, linear_kd);
@@ -47,8 +48,11 @@ void forward_move(float pwm, float time) {
   float ramp_pwm = pwm;
   uint64_t timer = millis();
   while (millis() < timer + time) {
-
-
+    if (xQueueReceive(mpu_queue, &acl_z, 1) != pdTRUE) {
+      continue;
+    }
+    accel_z = (float)acl_z;
+    
     delta = millis() - timer;
     if (accel_time != 0 && delta < accel_time) {
        ramp_pwm = map(delta, 0, accel_time, 0, pwm);
@@ -75,13 +79,12 @@ void forward_move(float pwm, float time) {
     drive_motors(left_pwm, right_pwm);
 
 
-    ESP_LOGD(TAG, "pid: %f  l:%f  r:%f", pid_error, left_pwm, right_pwm);
-    xQueueReceive(mpu_queue, &acl_z, 1);
-    accel_z = (float)acl_z;
+    ESP_LOGD(TAG, "ac: %f pid: %f  l:%f  r:%f", accel_z, pid_error, left_pwm, right_pwm);
   }
 
   vTaskSuspend(mpu_task_handle);
   stop_motors();
+  bluetooth.printf("End Move forward\n");
 }
 
 

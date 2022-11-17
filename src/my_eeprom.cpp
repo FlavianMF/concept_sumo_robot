@@ -442,3 +442,40 @@ void initialize_variables(void) {
   ESP_LOGV(TAG, "Variables are initialized");
   xSemaphoreGive(setup_mutex);
 }
+
+void reset_variables() {
+  ESP_LOGV(TAG, "reset_variables");
+  bluetooth.printf("\nreset_variables\n");
+
+  if (!init_flag) {
+    ESP_LOGE(TAG, "Eeprom not initialized");
+    bluetooth.printf("Eeprom not initialized\n");
+  }
+
+  int i = 0;
+  
+  for (; i < count_variables; i++) {
+    *variables[i].variable = variables[i].init_value;
+
+    EEPROM.put(i * sizeof(float), *variables[i].variable);
+  }
+
+  for (int j = 0; j < count_outputs; j++) {
+    outputs[j].variables.time = 0;
+    EEPROM.put(++i * sizeof(float), outputs[j].variables.time);
+    outputs[j].variables.angle = 0;
+    EEPROM.put(++i * sizeof(float), outputs[j].variables.angle);
+    outputs[j].variables.linear_pwm = 0;
+    EEPROM.put(++i * sizeof(float), outputs[j].variables.linear_pwm);
+    outputs[j].variables.angle_pwm = 0;
+    EEPROM.put(++i * sizeof(float), outputs[j].variables.angle_pwm);
+  }
+
+  for (int j = 0; j < count_searches; j++) {
+    for (int k = 0; k < 4; k++) {
+      searches[j].variables[k] = 0;
+      EEPROM.put(++i * sizeof(float), searches[j].variables[k]);
+    }
+  }
+  bluetooth.printf("end\n");
+}

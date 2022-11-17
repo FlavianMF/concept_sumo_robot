@@ -13,6 +13,7 @@ typedef enum {
   IDLE,
   PASS,
   ANY_ERROR,
+  PREPARING,
   STATUS_OK,
   PREPARED,
   STOPPED,

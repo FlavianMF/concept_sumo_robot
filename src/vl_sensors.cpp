@@ -34,8 +34,11 @@ void setup_vl_sensors() {
 }
 
 int read_front_sensor() {
-  if (!front_sensor.rangingTest(&front_sensor_measure, false)) {
-    return front_sensor_measure.RangeStatus == 0 ? front_sensor_measure.RangeMilliMeter : 10000;
+  while(true) {
+    if (!front_sensor.rangingTest(&front_sensor_measure, false)) {
+      return front_sensor_measure.RangeStatus == 0 ? front_sensor_measure.RangeMilliMeter : 10000;
+    }
+    vTaskDelay(1);
+    // vTaskDelay(pdMS_TO_TICKS(1));
   }
-  return 10000;
 }
